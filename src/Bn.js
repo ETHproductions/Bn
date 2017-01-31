@@ -29,7 +29,6 @@ Bn.parse = function (value) {
 	result.data = [];
 	result.decs = 0;
 	result.sign = 0;
-	result.queue = [];
 
 	// Force input to be a string if it isn't already
 	if (typeof value !== "string") {
@@ -335,7 +334,7 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 };
 
 // Default argument is handled by Bn.add()
-Bn.prototype.substract = Bn.prototype.s = function(...a) {
+Bn.prototype.subtract = Bn.prototype.s = function(...a) {
 	return this.add(a.map(b=>
 					(b=Bn(b),b.sign = -b.sign,b)
 				)
