@@ -64,6 +64,11 @@ Bn.parse = function (value) {
 		// Remove the scientific part
 		value = value.replace(/e([+-]?\d+)$/i, "");
 		
+		// Interpret "eX" as "1eX"
+		if (value === "") {
+			value = "1";
+		}
+		
 		// The minimum number of decimals that will end up in the data
 		result.decs = Math.floor(decs * -1/3); 
 		decs = decs % 3;
