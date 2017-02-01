@@ -20,9 +20,9 @@ function Bn(value) {
 }
 
 Bn.parse = function (value) {
-	// Don't do anything if it's already a Bn.
+	// If it's already a Bn, return a clone.
 	if (value instanceof Bn)
-		return value;
+		return value.clone();
 
 	var orig = value;
 	var result = new Bn();
@@ -32,7 +32,7 @@ Bn.parse = function (value) {
 
 	// Force input to be a string if it isn't already
 	if (typeof value !== "string") {
-		value = "" + value; 
+		value += ""; 
 	}
 
 	// Remove commas and whitespace and underscores.
@@ -222,6 +222,43 @@ Bn.compare = function (a, b, options = {}) {
 	return 0;
 }
 
+// Returns a clone of the Bn, optionally overwriting an existing one.
+Bn.prototype.clone = function (target = new Bn()) {
+	target.data = [...this.data];
+	target.decs = this.decs;
+	target.sign = this.sign;
+	return target;
+}
+
+Bn.prototype.toString = function (base = 10) {
+	// TODO: implement base
+	let decs = this.decs;
+	let result = "";
+	
+	// Align this with 1 to ensure we have enough decimal places to get to the units digit
+	Bn.align(this, new Bn(1));
+	
+	for (let item of this.data) {
+		// If we're at the decimal point, add one
+		if (decs-- === 0)
+			result = "." + result;
+		
+		// Make sure to pad to a length of three digits
+		result = ("00" + item).slice(-3) + result;
+	}
+	
+	// Remove trailing zeroes
+	result = result.replace(/(\..*?)0+$/g, "$1");
+	
+	// Remove trailing decimal point
+	result = result.replace(/\.$/g, "");
+	
+	// Remove leading zeroes
+	result = result.replace(/^0+(?!\.)/g, "");
+	
+	return result;
+}
+
 /*
  * Comparison functions
  *
@@ -292,7 +329,7 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 		} else if (this.sign === 0){
 			// If this doesn't have a sign (is zero),
 			// just copy everything over.
-			this = other;
+			other.clone(this);
 		} else if (this.sign === other.sign) {
 			// Align the values
 			Bn.align(this, other);
@@ -310,7 +347,7 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 			}
 		} else {
 			// Align the values
-			BigNumber.align(this, other);
+			Bn.align(this, other);
 			
 			// Modify the sign
 			this.sign = this.sign * this.cmp(other, {aligned: true, ignoreSign: true});
@@ -335,8 +372,11 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 
 // Default argument is handled by Bn.add()
 Bn.prototype.subtract = Bn.prototype.s = function(...a) {
-	return this.add(a.map(b=>
-					(b=Bn(b),b.sign = -b.sign,b)
-				)
-			);
+	return this.add(...a.map(b => {
+		b = Bn(b);
+		b.sign *= -1;
+		return b;
+	}));
 }
+
+if (typeof module === "object") module.exports = Bn;
