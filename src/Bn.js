@@ -38,8 +38,9 @@ Bn.parse = function (value) {
 	// Remove commas and whitespace and underscores.
 	value = value.replace(/[,_\s]/g, "");
 	
+	// Handle inputs like "e-3".
 	if (value[0] === "e") {
-		value = 1 + value;
+		value = "1" + value;
 	}
 
 	// At this point, we check if the input is invalid, and throw a SyntaxError if it is.
@@ -425,10 +426,10 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 			for (let j = value.data.length; j > 0; j--) {
 				// Add plus carry
 				carry = result[j] + value.data[i] * this.data[j - 1] + carry;
-				result[j] = carry % 10;
+				result[j] = carry % 1000;
 
 				// carry
-				carry = carry / 10 | 0;
+				carry = carry / 1000 | 0;
 			}
 
 			result[i] = (result[i] + carry) % 10;
