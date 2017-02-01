@@ -31,3 +31,5 @@ console.log(new Bn(2).m(4,1,5));
 console.log(new Bn(-6).m(9,7));
 console.log(new Bn(-6).m(-9,7));
 console.log(new Bn(-6).m(-9,-7));
+console.log(new Bn(1234).m(1234));
+console.log(new Bn(1.234).m(1.234));

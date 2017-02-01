@@ -411,42 +411,44 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 		// Change the exponent.
 		this.decs += value.decs;
 
+		let tlen = this.data.length,
+			vlen = value.data.length;
+		
 		// Coefficient array of zeroes
-		var result = Array(this.data.length + value.data.length).fill(0);
+		var result = Array(tlen + vlen).fill(0);
 
 		// Make sure this.data is the longest
-		if (this.data.length < value.data.length) {
+		if (tlen < vlen) {
 			this.clone(value);
 		}
-
+		
 		// Do the actual multiplication
-		for (let i = 0; i < this.data.length; i++) {
-			var carry = 0;
-			
-			for (let j = value.data.length; j > 0; j--) {
+		for (let i = 0; i < tlen; i++) {
+			let carry = 0;
+			for (let j = 0; j < vlen; j++) {
 				// Add plus carry
-				carry = result[j] + value.data[i] * this.data[j - 1] + carry;
-				result[j] = carry % 1000;
+				carry += result[i + j] + value.data[i] * this.data[j];
+				result[i + j] = carry % 1000;
 
 				// carry
 				carry = carry / 1000 | 0;
 			}
 
-			result[i] = (result[i] + carry) % 10;
+			result[i + vlen] += carry;
+			if (result[i + vlen] >= 1000) {
+				result[i + vlen + 1] += result[i + vlen] / 1000 | 0;
+				result[i + vlen] %= 1000;
+			}
 		}
 
-		// If there still is a carry, increment decimals
-		if (carry > 0) {
-			this.decs++;
-		}
-
-		// Remove potential leading zero.
-		if (result[0] === 0) {
+		// Remove potential leading zeroes.
+		while (result[0] === 0) {
 			result.shift();
+			this.decs--;
 		}
 
 		// Remove potential trailing zeroes.
-		for (let i = result.length; result[i] === 0; i--) {
+		for (let i = result.length; result[--i] === 0;) {
 			result.pop();
 		}
 
