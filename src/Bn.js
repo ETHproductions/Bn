@@ -39,7 +39,7 @@ Bn.parse = function (value) {
 	value = value.replace(/[,_\s]/g, "");
 
 	// At this point, we check if the input is invalid, and throw a SyntaxError if it is.
-	if (!/^[+-]?(\d+\.\d*|\.\d+)?(e[+-]?\d+)?$/.test(value)) {
+	if (!/^[+-]?(\d+\.?\d*|\.\d+)?(e[+-]?\d+)?$/.test(value)) {
 		throw new SyntaxError("Invalid Bn: " + orig);
 	}
 
@@ -389,7 +389,7 @@ Bn.prototype.subtract = Bn.prototype.s = function(...a) {
 	return this.add(...a.map(b => Bn(b).negate()));
 }
 
-Bn.prototype.multiply = Bn.m = function(...args) {
+Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 
 	if (!args.length) {
 		args = [2];
@@ -398,13 +398,14 @@ Bn.prototype.multiply = Bn.m = function(...args) {
 	for (var value of args) {
 		// Make sure value is a Bn
 		value = Bn(value);
+		let result = [];
 
 		// Sign
 		this.sign = this.sign == value.sign ? +1 : -1;
 
 		// If either value is zero, the result is zero
 		if (this.data[0] == 0 || 0 == value.data[0]) {
-			this = Bn(0);
+			Bn(0).clone(this);
 			continue;
 		}
 
@@ -432,11 +433,11 @@ Bn.prototype.multiply = Bn.m = function(...args) {
 				carry = carry / 10 | 0
 			}
 
-			result[i] = (result[i] + b) % 10;
+			result[i] = (result[i] + carry) % 10;
 		}
 
 		// If there still is a carry, increment decimals
-		if (b > 0) {
+		if (carry > 0) {
 			this.decs++;
 		}
 
