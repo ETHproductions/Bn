@@ -433,12 +433,9 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 				// carry
 				carry = carry / 1000 | 0;
 			}
-
-			result[i + vlen] += carry;
-			if (result[i + vlen] >= 1000) {
-				result[i + vlen + 1] += result[i + vlen] / 1000 | 0;
-				result[i + vlen] %= 1000;
-			}
+			
+			// Insert the resulting carry value
+			result[i + vlen] = carry;
 		}
 
 		// Remove potential leading zeroes.
