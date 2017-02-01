@@ -256,6 +256,10 @@ Bn.prototype.toString = function (base = 10) {
 	// Remove leading zeroes
 	result = result.replace(/^0+(?!\.)/g, "");
 	
+	// Optionally add a minus sign
+	if (this.sign === -1)
+		result = "-" + result;
+	
 	return result;
 }
 
@@ -312,6 +316,11 @@ Bn.prototype.greater = Bn.prototype.gt = function (b, opts) {
 /*
  * Maths!
  */
+Bn.prototype.negate = Bn.prototype.n = function (/* optional args? */) {
+	this.sign *= -1;
+	return this;
+}
+
 Bn.prototype.add = Bn.prototype.a = function (...args) {
 
 	// Default argument
@@ -372,11 +381,7 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 
 // Default argument is handled by Bn.add()
 Bn.prototype.subtract = Bn.prototype.s = function(...a) {
-	return this.add(...a.map(b => {
-		b = Bn(b);
-		b.sign *= -1;
-		return b;
-	}));
+	return this.add(...a.map(b => Bn(b).negate()));
 }
 
 if (typeof module === "object") module.exports = Bn;

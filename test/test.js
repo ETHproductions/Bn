@@ -21,3 +21,4 @@ console.log(new Bn(1) + "");
 console.log(new Bn(1234000) + "");
 console.log(new Bn(0.0005678) + "");
 console.log(new Bn(1234000.0005678) + "");
+console.log(new Bn(12).negate() + "");
