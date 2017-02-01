@@ -25,7 +25,7 @@ console.log(new Bn(12).negate() + "");
 
 // Multiplication tests
 console.log(new Bn(1).m(3));
-console.log(new Bn(13).m(e3));
+console.log(new Bn(13).m("e3"));
 console.log(new Bn(2).m(4,1,5));
 console.log(new Bn(-6).m(9,7));
 console.log(new Bn(-6).m(-9,7));
