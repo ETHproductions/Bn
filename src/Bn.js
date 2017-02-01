@@ -389,4 +389,71 @@ Bn.prototype.subtract = Bn.prototype.s = function(...a) {
 	return this.add(...a.map(b => Bn(b).negate()));
 }
 
+Bn.prototype.multiply = Bn.m = function(...args) {
+
+	if (!args.length) {
+		args = [2];
+	}
+
+	for (var value of args) {
+		// Make sure value is a Bn
+		value = Bn(value);
+
+		// Sign
+		this.sign = this.sign == value.sign ? +1 : -1;
+
+		// If either value is zero, the result is zero
+		if (this.data[0] == 0 || 0 == value.data[0]) {
+			this = Bn(0);
+			continue;
+		}
+
+		// Change the exponent.
+		this.decs += value.decs;
+
+		// Coefficient array of zeroes
+		var c = Array(this.data.length + value.data.length).fill(0);
+
+		// Make sure this.data is the longest
+		if (this.data.length < value.data.length) {
+			this.clone(value);
+		}
+
+		// Do the actual multiplication
+		for (let i = 0; i < this.data.length; i++) {
+			var carry = 0;
+			
+			for (let j = value.data.length; j > 0; j--) {
+				// Add plus carry
+				carry = result[j] + value.data[i] * this.data[j - 1] + carry;
+				result[j] = carry % 10
+
+				// carry
+				carry = carry / 10 | 0
+			}
+
+			result[i] = (result[i] + b) % 10;
+		}
+
+		// If there still is a carry, increment decimals
+		if (b > 0) {
+			this.decs++;
+		}
+
+		// Remove potential leading zero.
+		if (result[0] === 0) {
+			result.shift();
+		}
+
+		// Remove potential trailing zeroes.
+		for (let i = result.length; result[i] === 0; i--) {
+			result.pop();
+		}
+
+		this.data = result;
+	}
+
+	return this;
+}
+
 if (typeof module === "object") module.exports = Bn;
