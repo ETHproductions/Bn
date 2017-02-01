@@ -398,7 +398,6 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 	for (var value of args) {
 		// Make sure value is a Bn
 		value = Bn(value);
-		let result = [];
 
 		// Sign
 		this.sign = this.sign == value.sign ? +1 : -1;
@@ -413,7 +412,7 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 		this.decs += value.decs;
 
 		// Coefficient array of zeroes
-		var c = Array(this.data.length + value.data.length).fill(0);
+		var result = Array(this.data.length + value.data.length).fill(0);
 
 		// Make sure this.data is the longest
 		if (this.data.length < value.data.length) {
