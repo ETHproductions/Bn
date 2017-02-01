@@ -37,9 +37,13 @@ Bn.parse = function (value) {
 
 	// Remove commas and whitespace and underscores.
 	value = value.replace(/[,_\s]/g, "");
+	
+	if (value[0] === "e") {
+		value = 1 + value;
+	}
 
 	// At this point, we check if the input is invalid, and throw a SyntaxError if it is.
-	if (!/^[+-]?(\d+\.?\d*|\.\d+)?(e[+-]?\d+)?$/.test(value)) {
+	if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/.test(value)) {
 		throw new SyntaxError("Invalid Bn: " + orig);
 	}
 
@@ -63,11 +67,6 @@ Bn.parse = function (value) {
 
 		// Remove the scientific part
 		value = value.replace(/e([+-]?\d+)$/i, "");
-		
-		// Interpret "eX" as "1eX"
-		if (value === "") {
-			value = "1";
-		}
 		
 		// The minimum number of decimals that will end up in the data
 		result.decs = Math.floor(decs * -1/3); 
@@ -400,7 +399,7 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 		value = Bn(value);
 
 		// Sign
-		this.sign = this.sign == value.sign ? +1 : -1;
+		this.sign *= value.sign;
 
 		// If either value is zero, the result is zero
 		if (this.data[0] == 0 || 0 == value.data[0]) {
@@ -426,10 +425,10 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 			for (let j = value.data.length; j > 0; j--) {
 				// Add plus carry
 				carry = result[j] + value.data[i] * this.data[j - 1] + carry;
-				result[j] = carry % 10
+				result[j] = carry % 10;
 
 				// carry
-				carry = carry / 10 | 0
+				carry = carry / 10 | 0;
 			}
 
 			result[i] = (result[i] + carry) % 10;

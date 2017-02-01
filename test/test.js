@@ -15,6 +15,7 @@ console.log(new Bn("1"));
 console.log(new Bn("-1"));
 console.log(new Bn("1e10"));
 console.log(new Bn("1e-10"));
+console.log(new Bn("e-10"));
 
 // .toString() tests
 console.log(new Bn(1) + "");
