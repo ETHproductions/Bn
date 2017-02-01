@@ -39,7 +39,7 @@ Bn.parse = function (value) {
 	value = value.replace(/[,_\s]/g, "");
 
 	// At this point, we check if the input is invalid, and throw a SyntaxError if it is.
-	if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/.test(value)) {
+	if (!/^[+-]?(\d+\.\d*|\.\d+)?(e[+-]?\d+)?$/.test(value)) {
 		throw new SyntaxError("Invalid Bn: " + orig);
 	}
 
