@@ -478,9 +478,9 @@ Bn.prototype.floor = Bn.prototype._ = Bn.prototype.f = function () {
 	// If this is positive, floor is the same as trunc(this).
 	// If this is negative, floor is the same as trunc(this-1).
 	if (this.sign > 0) {
-		return this.trunc();
+		return this.truncate();
 	} else if (this.decs > 0) {
-		return this.subtract(1).trunc();
+		return this.subtract(1).truncate();
 	}
 
 	return this;
@@ -491,9 +491,9 @@ Bn.prototype.ceiling = Bn.prototype.ceil = Bn.prototype.c = function () {
 	// If this is positive, ceiling is the same as trunc(this+1).
 	// If this is negative, ceiling is the same as trunc(this).
 	if (this.sign > 0 && this.decs > 0) {
-		return this.add(1).trunc();
+		return this.add(1).truncate();
 	} else if (this.decs > 0) {
-		return this.trunc();
+		return this.truncate();
 	}
 
 	return this;
@@ -504,5 +504,12 @@ Bn.prototype.round = Bn.prototype.r = function () {
 	// Rounding always works the same...
 	return this.add(0.5).floor();
 }
+
+Bn.prototype.bitwiseNOT = Bn.prototype.bn = function () {
+	
+	// Mimicing javascript's ~ operator.
+	// ~n = (Math.trunc(n) + 1) * -1
+	return this.truncate().add(1).negate();
+};
 
 if (typeof module === "object") module.exports = Bn;
