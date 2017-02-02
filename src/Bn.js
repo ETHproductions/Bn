@@ -201,7 +201,7 @@ Bn.compare = function (a, b, options = {}) {
 	// If the comparison should take the signs into
 	// account and the signs are different, the
 	// sign of a should be returned.
-	if (!opts.ignoreSign && a.sign !== b.sign) {
+	if (!options.ignoreSign && a.sign !== b.sign) {
 		return a.sign;
 	}
 
@@ -209,13 +209,13 @@ Bn.compare = function (a, b, options = {}) {
 	// number.
 	for (let i = a.data.length - 1; i > 0; i--) {
 		if (a.data[i] < b.data[i]) {
-			if (!opts.ignoreSign) {
+			if (!options.ignoreSign) {
 				return -a.sign;
 			} else {
 				return -1;
 			}
 		} else if (a.data[i] > b.data[i]) {
-			if (!opts.ignoreSign) {
+			if (!options.ignoreSign) {
 				return +a.sign;
 			} else {
 				return +1;
@@ -295,27 +295,27 @@ Bn.prototype.toString = function (base = 10) {
 */
 
 Bn.prototype.compare = Bn.prototype.cmp = function (b, options) {
-	return Bn.compare(this, Bn.parse(b), opts);
+	return Bn.compare(this, Bn.parse(b), options);
 };
 
-Bn.prototype.less = Bn.prototype.lt = function (b, opts) {
-	return Bn.compare(this, Bn.parse(b), opts) === -1;
+Bn.prototype.less = Bn.prototype.lt = function (b, options) {
+	return Bn.compare(this, Bn.parse(b), options) === -1;
 };
 
-Bn.prototype.lte = function (b, opts) {
-	return Bn.compare(this, Bn.parse(b), opts) < 1;
+Bn.prototype.lte = function (b, options) {
+	return Bn.compare(this, Bn.parse(b), options) < 1;
 };
 
-Bn.prototype.equal = Bn.prototype.eq = function (b, opts) {
-	return Bn.compare(this, Bn.parse(b), opts) ===  0;
+Bn.prototype.equal = Bn.prototype.eq = function (b, options) {
+	return Bn.compare(this, Bn.parse(b), options) ===  0;
 };
 
-Bn.prototype.gte = function (b, opts) {
-	return Bn.compare(this, Bn.parse(b), opts) > -1;
+Bn.prototype.gte = function (b, options) {
+	return Bn.compare(this, Bn.parse(b), options) > -1;
 };
 
-Bn.prototype.greater = Bn.prototype.gt = function (b, opts) {
-	return Bn.compare(this, Bn.parse(b), opts) === +1;
+Bn.prototype.greater = Bn.prototype.gt = function (b, options) {
+	return Bn.compare(this, Bn.parse(b), options) === +1;
 };
 
 /*
@@ -332,7 +332,10 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 	if (args.length === 0) {
 		args = [1];
 	}
-
+	
+	// Flatten array
+	args = [].concat.apply([], args)
+	
 	for (var argument of args) {
 		let other = BigNumber(argument);
 
@@ -394,7 +397,10 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 	if (!args.length) {
 		args = [2];
 	}
-
+	
+	// Flatten array
+	args = [].concat.apply([], args)
+	
 	for (var value of args) {
 		// Make sure value is a Bn
 		value = Bn(value);
@@ -453,6 +459,50 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 	}
 
 	return this;
+}
+
+Bn.prototype.truncate = Bn.prototype.trunc = Bn.prototype.t = function () {
+	
+	// If this is a value with a decimal part, just slice off
+	// the decimals
+	if (this.decs > 0) {
+		this.data = this.data.slice(this.decs);
+		this.decs = 0;
+	}
+
+	return this;
+};
+
+Bn.prototype.floor = Bn.prototype._ = Bn.prototype.f = function () {
+
+	// If this is positive, floor is the same as trunc(this).
+	// If this is negative, floor is the same as trunc(this-1).
+	if (this.sign > 0) {
+		return this.trunc();
+	} else if (this.decs > 0) {
+		return this.subtract(1).trunc();
+	}
+
+	return this;
+}
+
+Bn.prototype.ceiling = Bn.prototype.ceil = Bn.prototype.c = function () {
+
+	// If this is positive, ceiling is the same as trunc(this+1).
+	// If this is negative, ceiling is the same as trunc(this).
+	if (this.sign > 0 && this.decs > 0) {
+		return this.add(1).trunc();
+	} else if (this.decs > 0) {
+		return this.trunc();
+	}
+
+	return this;
+}
+
+Bn.prototype.round = Bn.prototype.r = function () {
+	
+	// Rounding always works the same...
+	return this.add(0.5).floor();
 }
 
 if (typeof module === "object") module.exports = Bn;
