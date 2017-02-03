@@ -235,6 +235,28 @@ Bn.prototype.clone = function (target = new Bn()) {
 	return target;
 }
 
+// Removes all leading and trailing zeroes.
+Bn.prototype.clean = function () {
+	// Remove leading zeroes
+	while (this.data[0] === 0) {
+		this.data.shift();
+		this.decs--;
+	}
+	
+	// Remove trailing zeroes
+	while (this.data.slice(-1)[0] === 0) {
+		this.data.pop();
+	}
+	
+	// Handle the case of zero
+	if (this.data.length === 0) {
+		this.data = [0];
+		this.decs = 0;
+	}
+	
+	return this;
+}
+
 Bn.prototype.toString = function (base = 10) {
 	// TODO: implement base
 	let decs = this.decs;
@@ -243,13 +265,18 @@ Bn.prototype.toString = function (base = 10) {
 	// Align this with 1 to ensure we have enough decimal places to get to the units digit
 	Bn.align(this, new Bn(1));
 	
-	for (let item of this.data) {
-		// If we're at the decimal point, add one
-		if (decs-- === 0)
-			result = "." + result;
-		
-		// Make sure to pad to a length of three digits
-		result = ("00" + item).slice(-3) + result;
+	if (base === 10) {
+		for (let item of this.data) {
+			// If we're at the decimal point, add one
+			if (decs-- === 0)
+				result = "." + result;
+
+			// Make sure to pad to a length of three digits
+			result = ("00" + item).slice(-3) + result;
+		}
+	} else {
+		// I don't think this is possible without adding a few more functions
+		throw new RangeError("Cannot yet convert Bn to bases other than 10");
 	}
 	
 	// Remove trailing zeroes
@@ -384,7 +411,7 @@ Bn.prototype.add = Bn.prototype.a = function (...args) {
 			}
 		}
 	}
-	return this;
+	return this.clean();
 };
 
 // Default argument is handled by Bn.add()
@@ -444,21 +471,15 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 			result[i + vlen] = carry;
 		}
 
-		// Remove potential leading zeroes.
-		while (result[0] === 0) {
-			result.shift();
-			this.decs--;
-		}
-
-		// Remove potential trailing zeroes.
-		for (let i = result.length; result[--i] === 0;) {
-			result.pop();
-		}
-
 		this.data = result;
+		this.clean();
 	}
 
 	return this;
+}
+
+Bn.prototype.divide = Bn.prototype.div = Bn.prototype.d = function (...args) {
+	// I don't think this is possible without implementing a couple more functions
 }
 
 Bn.prototype.truncate = Bn.prototype.trunc = Bn.prototype.t = function () {
@@ -470,7 +491,7 @@ Bn.prototype.truncate = Bn.prototype.trunc = Bn.prototype.t = function () {
 		this.decs = 0;
 	}
 
-	return this;
+	return this.clean();
 };
 
 Bn.prototype.floor = Bn.prototype._ = Bn.prototype.f = function () {
