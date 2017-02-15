@@ -257,10 +257,15 @@ Bn.prototype.clean = function () {
 	return this;
 }
 
+// Decimal precision (used for division, etc.)
+Bn.DP = 1e3;
+
 Bn.prototype.toString = function (base = 10) {
-	// TODO: implement base
-	let decs = this.decs;
+	if (base % 1) throw new RangeError("Base must be an integer");
+	if (base < 2 || base > 36) throw new RangeError("Base must be at least 2 and no more than 36");
+	
 	let result = "";
+	let decs = this.decs;
 	
 	// Align this with 1 to ensure we have enough decimal places to get to the units digit
 	Bn.align(this, new Bn(1));
@@ -275,8 +280,36 @@ Bn.prototype.toString = function (base = 10) {
 			result = ("00" + item).slice(-3) + result;
 		}
 	} else {
-		// I don't think this is possible without adding a few more functions
-		throw new RangeError("Cannot yet convert Bn to bases other than 10");
+
+		while (that.data.length > that.decs) {
+			let carry = 0;
+			for (var i = that.data.length; i-- > that.decs; ) {
+				that.data[i] += carry * 1000;
+				carry = that.data[i] % base;
+				that.data[i] -= carry;
+				that.data[i] /= base;
+			}
+			if (that.data.slice(-1)[0] === 0) {
+				that.data.pop();
+			}
+			result = carry.toString(base) + result;
+		}
+
+		result += ".";
+		let iters = Bn.DP;
+		while (that.data.length && iters--) {
+			let carry = 0;
+			for (var i = 0; i < that.data.length; i++) {
+				that.data[i] *= base;
+				that.data[i] += carry;
+				carry = that.data[i] / 1000 | 0;
+				that.data[i] %= 1000;
+			}
+			if (that.data[0] === 0) {
+				that.data.shift();
+			}
+			result += carry.toString(base);
+		}
 	}
 	
 	// Remove trailing zeroes
@@ -291,6 +324,9 @@ Bn.prototype.toString = function (base = 10) {
 	// Optionally add a minus sign
 	if (this.sign === -1)
 		result = "-" + result;
+	
+	// Remove any extra zeroes we added
+	this.clean();
 	
 	return result;
 }
@@ -498,13 +534,53 @@ Bn.prototype.halve = function () {
 	for (var i = this.data.length; i-- > 0; ) {
 		this.data[i] += carry * 1000;
 		carry = this.data[i] % 2;
-		this.data[i] -= carry;
-		this.data[i] /= 2;
+		this.data[i] >>= 1;
 	}
 	
 	if (carry) this.data.unshift(500);
 	
 	return this.clean();
+}
+
+Bn.prototype.toBinary = function () {
+	let result = "";
+	let that = this.clone();
+	Bn.align(that, new Bn(1));
+	
+	while (that.data.length > that.decs) {
+		let carry = 0;
+		for (var i = that.data.length; i-- > that.decs; ) {
+			that.data[i] += carry * 1000;
+			carry = that.data[i] % 2;
+			that.data[i] >>= 1;
+		}
+		if (that.data.slice(-1)[0] === 0) {
+			that.data.pop();
+		}
+		result = carry + result;
+	}
+	
+	if (that.data.length === 0) {
+		return result;
+	}
+	
+	result += ".";
+	let iters = Bn.DP;
+	while (that.data.length && iters--) {
+		let carry = 0;
+		for (var i = 0; i < that.data.length; i++) {
+			that.data[i] *= 2;
+			that.data[i] += carry;
+			carry = that.data[i] >= 1000 | 0;
+			that.data[i] %= 1000;
+		}
+		if (that.data[0] === 0) {
+			that.data.shift();
+		}
+		result += carry;
+	}
+	
+	return result;
 }
 
 Bn.prototype.divide = Bn.prototype.div = Bn.prototype.d = function (...args) {

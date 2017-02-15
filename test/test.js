@@ -42,3 +42,9 @@ console.log(new Bn(12.500).double());
 console.log(new Bn(12).halve());
 console.log(new Bn(1).halve());
 console.log(new Bn(12.345).halve());
+
+console.log(new Bn(12.2).toString(2))
+console.log(new Bn(12.2).toString(3))
+console.log(new Bn(12.2).toString(4))
+console.log(new Bn(12.2).toString(5))
+console.log(new Bn(12.2).toString(6))
