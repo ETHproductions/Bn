@@ -478,6 +478,35 @@ Bn.prototype.multiply = Bn.prototype.m = function(...args) {
 	return this;
 }
 
+Bn.prototype.double = function () {
+	let carry = 0;
+	
+	for (var i = 0; i < this.data.length; i++) {
+		this.data[i] *= 2;
+		this.data[i] += carry;
+		carry = this.data[i] >= 1000 | 0;
+		this.data[i] %= 1000;
+	}
+	
+	if (carry) this.data.push(1);
+	
+	return this.clean();
+}
+
+Bn.prototype.halve = function () {
+	let carry = 0;
+	for (var i = this.data.length; i-- > 0; ) {
+		this.data[i] += carry * 1000;
+		carry = this.data[i] % 2;
+		this.data[i] -= carry;
+		this.data[i] /= 2;
+	}
+	
+	if (carry) this.data.unshift(500);
+	
+	return this.clean();
+}
+
 Bn.prototype.divide = Bn.prototype.div = Bn.prototype.d = function (...args) {
 	// I don't think this is possible without implementing a couple more functions
 }

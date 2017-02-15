@@ -33,3 +33,12 @@ console.log(new Bn(-6).m(-9,7));
 console.log(new Bn(-6).m(-9,-7));
 console.log(new Bn(1234).m(1234));
 console.log(new Bn(1.234).m(1.234));
+
+
+// Double / Halve tests
+console.log(new Bn(12).double());
+console.log(new Bn(500).double());
+console.log(new Bn(12.500).double());
+console.log(new Bn(12).halve());
+console.log(new Bn(1).halve());
+console.log(new Bn(12.345).halve());
